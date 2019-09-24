@@ -10,6 +10,9 @@ test-output/
 .project
 .settings
 .springBeans
+./producer/src/test/resources/Source
+./producer/src/test/resources/Processed
+./producer/src/test/resources/Error
 
 # IntelliJ IDEA
 .idea
