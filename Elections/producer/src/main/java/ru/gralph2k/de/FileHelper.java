@@ -30,12 +30,15 @@ public class FileHelper {
 
     private FileHelper(String sourceDir, PapersProducer papersProducer) throws IOException {
         this.sourceDir = Paths.get(sourceDir);
-        this.processedDir = Paths.get(this.sourceDir.getParent().toString(), "Processed");
-        this.errorRowsDir = Paths.get(this.sourceDir.getParent().toString(), "ErrorRows");
-        this.successRowsDir = Paths.get(this.sourceDir.getParent().toString(), "SuccessRows");
-        FileUtils.forceMkdir(this.processedDir.toFile());
-        FileUtils.forceMkdir(this.errorRowsDir.toFile());
-        FileUtils.forceMkdir(this.successRowsDir.toFile());
+        String parent = this.sourceDir.getParent().toString();
+        this.processedDir = Paths.get(parent,"Processed");
+        this.errorRowsDir = Paths.get(parent,"ErrorRows");
+        this.successRowsDir = Paths.get(parent,"SuccessRows");
+
+        FileUtils.forceMkdir(processedDir.toFile());
+        FileUtils.forceMkdir(errorRowsDir.toFile());
+        FileUtils.forceMkdir(successRowsDir.toFile());
+
         filePrefix = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date());
     }
 
@@ -63,6 +66,7 @@ public class FileHelper {
     }
 
     public File[] papersList() {
+        System.out.println(String.format("Scan %s ",sourceDir.toString()));
         return new File(sourceDir.toUri()).listFiles((d, name) -> name.endsWith(".csv"));
     }
 

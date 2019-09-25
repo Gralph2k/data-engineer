@@ -1,0 +1,21 @@
+version: '3'
+services:
+  producer:
+    depends_on:
+      - kafka
+    build:
+      context: ./producer
+    networks:
+      - election-network
+    volumes:
+      - ./Data:/Data
+  kafka:
+    image: spotify/kafka
+    networks:
+      - election-network
+networks:
+  election-network:
+    external:
+      name: election-network
+
+

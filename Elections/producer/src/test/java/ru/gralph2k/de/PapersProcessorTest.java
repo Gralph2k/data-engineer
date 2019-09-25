@@ -29,6 +29,7 @@ public class PapersProcessorTest {
         FileUtils.cleanDirectory(Paths.get("./src/test/resources/SuccessRows").toFile());
 
         FileUtils.copyDirectory(Paths.get("./src/test/resources/Template/").toFile(), Paths.get("./src/test/resources/Source/").toFile());
+
     }
 
     @Test

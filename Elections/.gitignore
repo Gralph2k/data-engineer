@@ -14,6 +14,7 @@ producer/src/test/resources/ErrorRows/
 producer/src/test/resources/Processed/
 producer/src/test/resources/Source/
 producer/src/test/resources/SuccessRows/
+data/
 
 # IntelliJ IDEA
 .idea
