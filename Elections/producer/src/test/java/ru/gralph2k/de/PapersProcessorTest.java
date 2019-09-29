@@ -50,7 +50,7 @@ public class PapersProcessorTest {
         PapersProducer kafkaProducer = ProducerFactory.getInstance("PapersKafkaProducer");
         PaperType paperType = PaperTypeFactory.getInstance("PaperType_Presidential2018");
 
-        PapersProcessor papersProcessor = new PapersProcessor("./src/test/resources/Source", kafkaProducer, paperType, "KafkaTestTopic");
+        PapersProcessor papersProcessor = new PapersProcessor("./src/test/resources/Source", kafkaProducer, paperType, "Presidential2018");
         int rows = papersProcessor.processPapers();
         assertEquals(rows, 14);
 

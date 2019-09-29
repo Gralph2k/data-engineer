@@ -36,19 +36,29 @@ services:
       - election-network
 
   postgres:
-    image: postgres
+    image: "postgres:11"
+    container_name: "postgres"
     environment:
     - POSTGRES_USER=consumer
-    - POSTGRES_DB=consumer
+    - POSTGRES_DB=Elections
     - POSTGRES_PASSWORD=goto@Postgres1
     ports:
     - "5432:5432"
     networks:
     - election-network
+    volumes:
+    - ./Postgres:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
 
 networks:
   election-network:
     external:
       name: election-network
+
 
 

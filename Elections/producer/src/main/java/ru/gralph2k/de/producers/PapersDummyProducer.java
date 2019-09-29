@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import ru.gralph2k.de.FileHelper;
 
 public class PapersDummyProducer extends PapersProducer {
-    private static final Logger log = LoggerFactory.getLogger(FileHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(PapersDummyProducer.class);
 
     PapersDummyProducer(){}
 

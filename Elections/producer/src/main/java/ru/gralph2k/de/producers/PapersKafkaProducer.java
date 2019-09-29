@@ -12,7 +12,7 @@ import ru.gralph2k.de.PaperSerializer;
 import java.util.Properties;
 
 public class PapersKafkaProducer extends PapersProducer {
-    private static final Logger log = LoggerFactory.getLogger(FileHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(PapersKafkaProducer.class);
 
     Producer<String, Object> kafkaProducer;
 
