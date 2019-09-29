@@ -7,7 +7,7 @@ import ru.gralph2k.de.FileHelper;
 public class PapersDummyProducer extends PapersProducer {
     private static final Logger log = LoggerFactory.getLogger(FileHelper.class);
 
-    PapersDummyProducer(){};
+    PapersDummyProducer(){}
 
     @Override
     public void send(String topic, String key, Object value) {

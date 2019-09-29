@@ -22,7 +22,7 @@ public class PaperType_Presidential2018 extends PaperType {
     private Integer papers_advance;
     private Integer papers_excessive;
 
-    public PaperType_Presidential2018() {};
+    public PaperType_Presidential2018() {}
 
     /**
      * Заполняет поля объекта на основании входящей строки. Если прошло успено - возвращает true.

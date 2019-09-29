@@ -1,12 +1,14 @@
 package ru.gralph2k.de;
 
-import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.gralph2k.de.paperTypes.PaperType_Presidential2018;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Properties;
@@ -17,12 +19,12 @@ public class PapersConsumer {
     String paperType;
     String topic;
 
-    public PapersConsumer(String topic, String paperType){
-        this.topic=topic;
-        this.paperType=paperType;
+    public PapersConsumer(String topic, String paperType) {
+        this.topic = topic;
+        this.paperType = paperType;
     }
 
-    private void consume() throws ClassNotFoundException{
+    private void consume() {
         Class paperTypeClass = PaperTypeFactory.getClass(paperType);
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.0.103:9092");
@@ -36,7 +38,7 @@ public class PapersConsumer {
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // TODO Выключить после отладки
 
         KafkaConsumer<String, PaperType_Presidential2018> consumer =
-            new KafkaConsumer(properties,new StringDeserializer(), new PaperDeserializer(paperTypeClass)); //TODO Вместо PaperType_Presidential2018 использловать paperTypeClass. Как?
+            new KafkaConsumer(properties, new StringDeserializer(), new PaperDeserializer(paperTypeClass)); //TODO Вместо PaperType_Presidential2018 использловать paperTypeClass. Как?
         consumer.subscribe(Arrays.asList(topic));
         while (true) {
             ConsumerRecords<String, PaperType_Presidential2018> records = consumer.poll(Duration.ofMillis(400));
@@ -47,29 +49,26 @@ public class PapersConsumer {
     }
 
 
-    public static void main(String[] args) throws IOException,ClassNotFoundException{
-        log.info("started. \nArgs.count={}",args.length);
-        for (String arg:args) {
+    public static void main(String[] args) throws ClassNotFoundException {
+        log.info("started. \nArgs.count={}", args.length);
+        for (String arg : args) {
             log.info(arg);
         }
 
         String topic = "Presidential2018";
         String paperType = "PaperType_Presidential2018";
 
-
-        if (args.length>=1) {
+        if (args.length >= 1) {
             topic = args[1];
         }
-        if (args.length>=2) {
-            paperType=args[2];
+        if (args.length >= 2) {
+            paperType = args[2];
         }
-        PapersConsumer papersConsumer = new PapersConsumer(topic,paperType);
+        PapersConsumer papersConsumer = new PapersConsumer(topic, paperType);
 
         papersConsumer.consume();
         log.info("Finished");
     }
-
-
 
 
 }

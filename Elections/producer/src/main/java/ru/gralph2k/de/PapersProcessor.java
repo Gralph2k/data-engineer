@@ -61,7 +61,7 @@ public class PapersProcessor {
         return lines;
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
         log.info("Started. \nArgs.count={}", args.length);
         log.info("Initializing producer, sleeping for 30 seconds to let Kafka startup");
         Thread.sleep(30000);
