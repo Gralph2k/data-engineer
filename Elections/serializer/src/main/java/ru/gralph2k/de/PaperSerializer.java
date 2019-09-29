@@ -1,4 +1,4 @@
-package ru.gralph2k.de.serializer;
+package ru.gralph2k.de;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Serializer;

@@ -66,7 +66,7 @@ public class FileHelper {
     }
 
     public File[] papersList() {
-        System.out.println(String.format("Scan %s ",sourceDir.toString()));
+        log.debug("Scan {} ",sourceDir.toString());
         return new File(sourceDir.toUri()).listFiles((d, name) -> name.endsWith(".csv"));
     }
 
@@ -82,9 +82,9 @@ public class FileHelper {
         }
     }
 
-    public void writeError(String fileName, String line) throws IOException {
+    public void writeError(String fileName, String line, StackTraceElement stackTraceElement) throws IOException {
         Path errorFile = getErrorRowsDir().resolve(filePrefix + "_" + fileName);
-        FileUtils.writeStringToFile(errorFile.toFile(), line + System.lineSeparator(), "UTF-8", true);
+        FileUtils.writeStringToFile(errorFile.toFile(), line + System.lineSeparator()+"stackTraceElement"+System.lineSeparator(), "UTF-8", true);
     }
 
     public void writeSuccess(String fileName, String line) throws IOException {

@@ -1,9 +1,5 @@
-# FROM maven:3.6.1-jdk-8 as mavenBuild
-# COPY pom.xml pom.xml
-# COPY src src
-# RUN ["mvn", "install"]
-
-FROM java:8
-#COPY --from=mavenBuild ./target/*.jar ./
-ENV JAVA_OPTS ""
-CMD [ "bash", "-c", "java ${JAVA_OPTS} -jar *.jar"]
+FROM openjdk:8
+COPY ./target /usr/bin/app
+COPY ./src/main/resources /usr/bin/app
+WORKDIR /usr/bin/app
+ENTRYPOINT java -jar consumer-1.0-SNAPSHOT-jar-with-dependencies.jar ru.gralph2k.de.PapersConsumer Presidential2018 PaperType_Presidential2018

@@ -13,4 +13,7 @@ public class PapersDummyProducer extends PapersProducer {
     public void send(String topic, String key, Object value) {
         log.debug("Send to topic {}. Key:{}. Value:{}",topic,key,value);
     }
+
+    @Override
+    public void close(){}
 }
