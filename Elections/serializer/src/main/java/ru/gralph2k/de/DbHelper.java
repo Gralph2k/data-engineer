@@ -3,12 +3,10 @@ package ru.gralph2k.de;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.io.Closeable;
+import java.sql.*;
 
-public class DbHelper {
+public class DbHelper implements Closeable {
     private static final Logger log = LoggerFactory.getLogger(DbHelper.class);
 
     Connection c;
@@ -27,17 +25,39 @@ public class DbHelper {
         log.info("Opened database successfully");
     }
 
-    public void execSql(String sql) throws SQLException {
-        Statement stmt = c.createStatement();
-        log.info("execute {}",sql);
-        stmt.executeUpdate(sql);
-        stmt.close();
+    public void executeUpdate(String sql)  {
+        try {
+            log.debug("execute {}", sql);
+            Statement stmt = c.createStatement();
+            stmt.executeUpdate(sql);
+            stmt.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            System.exit(1);
+        }
     }
 
+    public ResultSet executeQuery(String sql)  {
+        try {
+            log.debug("query {}", sql);
+            Statement stmt = c.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ResultSet resultSet = ((PreparedStatement) stmt).executeQuery();
+            return resultSet;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            System.exit(1);
+        }
+        return null;
+    }
 
-    public void close() throws SQLException {
-        if (c!=null) {
-            c.close();
+    @Override
+    public void close() {
+        try {
+            if (c != null) {
+                c.close();
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
     }
 }

@@ -1,11 +1,16 @@
 package ru.gralph2k.de.paperTypes;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.gralph2k.de.DbHelper;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 //Формат протокола на президентских выборах 2018
+//TODO Разделить логику парсера и работу с базой данных
 public class PaperType_Presidential2018 extends PaperType {
+    private static final Logger log = LoggerFactory.getLogger(PaperType_Presidential2018.class);
 
     private Integer ps_id;
     private String region_name;
@@ -25,6 +30,10 @@ public class PaperType_Presidential2018 extends PaperType {
     private Integer papers_outside;
     private Integer papers_advance;
     private Integer papers_excessive;
+
+    private Integer protocols;
+    private Integer IKs;
+    private Integer regions;
 
     private static final String FIELDS_TYPES =
         "ID VARCHAR(500) NOT NULL," +
@@ -55,7 +64,9 @@ public class PaperType_Presidential2018 extends PaperType {
     private static final String SOURCE_TABLE = "Presidential2018_Source";
     private static final String CLEAN_TABLE = "Presidential2018_Clean";
 
-    public PaperType_Presidential2018() {
+    public PaperType_Presidential2018() {}
+    public PaperType_Presidential2018(DbHelper dbHelper) {
+        super(dbHelper);
     }
 
     /**
@@ -180,14 +191,14 @@ public class PaperType_Presidential2018 extends PaperType {
         return papers_excessive;
     }
 
-    public static void prepare(DbHelper helper) throws SQLException {
-        helper.execSql(String.format("CREATE TABLE IF NOT EXISTS %s (%s)",SOURCE_TABLE,FIELDS_TYPES));
-        helper.execSql(String.format("CREATE TABLE IF NOT EXISTS %s (%s)",CLEAN_TABLE,FIELDS_TYPES));
+    @Override
+    public void prepare() {
+        dbHelper.executeUpdate(String.format("CREATE TABLE IF NOT EXISTS %s (%s)",SOURCE_TABLE,FIELDS_TYPES));
+        dbHelper.executeUpdate(String.format("CREATE TABLE IF NOT EXISTS %s (%s)",CLEAN_TABLE,FIELDS_TYPES));
     }
 
     @Override
-    public boolean save(DbHelper helper) throws SQLException {
-
+    public void save() {
         String sql = String.format(
             "INSERT INTO %s (%s) "
                 + "VALUES ('%s', %d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, now() );"
@@ -212,7 +223,124 @@ public class PaperType_Presidential2018 extends PaperType {
             ,papers_outside
             ,papers_advance
             ,papers_excessive);
-        helper.execSql(sql);
-        return true;
+        dbHelper.executeUpdate(sql);
+    }
+
+    public void clean(){
+        dbHelper.executeUpdate(String.format("TRUNCATE TABLE %s",CLEAN_TABLE));
+        String sql = String.format(
+            "INSERT INTO %s\n" +
+            "\tSELECT %s \n" +
+            "      FROM (\n" +
+            "      \tSELECT %s\n" +
+            "      \t     ,ROW_NUMBER() OVER (PARTITION BY ID ORDER BY REGISTERED DESC) RN\n" +
+            "      \t  FROM %s\n" +
+            "      ) A\n" +
+            "      WHERE RN=1"
+            ,CLEAN_TABLE,FIELDS,FIELDS,SOURCE_TABLE);
+        dbHelper.executeUpdate(sql);
+    }
+
+    public ResultSet aggregate() {
+        String sql = String.format(
+            "SELECT COUNT(1) Protocols\n" +
+                "      ,COUNT(DISTINCT ID) IKs\n" +
+                "      ,COUNT(DISTINCT region_name) regions\n" +
+                "      ,COALESCE(SUM(baburin),0) baburin\n" +
+                "      ,COALESCE(SUM(grudinin),0) grudinin\n" +
+                "      ,COALESCE(SUM(zhirinovskiy),0) zhirinovskiy\n" +
+                "      ,COALESCE(SUM(putin),0) putin\n" +
+                "      ,COALESCE(SUM(sobchak),0) sobchak\n" +
+                "      ,COALESCE(SUM(uraikin),0) uraikin\n" +
+                "      ,COALESCE(SUM(titov),0) titov\n" +
+                "      ,COALESCE(SUM(papers_in_boxes),0) papers_in_boxes\n" +
+                "      ,COALESCE(SUM(valid_papers),0) valid_papers\n" +
+                "      ,COALESCE(SUM(voters),0) voters\n" +
+                "      ,COALESCE(SUM(papers_portable),0) papers_portable\n" +
+                "      ,COALESCE(SUM(papers_inside),0) papers_inside\n" +
+                "      ,COALESCE(SUM(papers_outside),0) papers_outside\n" +
+                "      ,COALESCE(SUM(papers_advance),0) papers_advance\n" +
+                "      ,COALESCE(SUM(papers_excessive),0) papers_excessive\n" +
+                "      ,MAX(registered) Max_Registered\n" +
+                "  FROM %s", CLEAN_TABLE);
+        return dbHelper.executeQuery(sql);
+    }
+
+    public boolean check(ResultSet resultSet){
+        try {
+            if (!resultSet.next()) {
+                log.info("Ошибка! Нет данных");
+                return true;
+            }
+            this.IKs = resultSet.getInt("IKs");
+            this.regions = resultSet.getInt("regions");
+            this.baburin = resultSet.getInt("baburin");
+            this.grudinin = resultSet.getInt("grudinin");
+            this.zhirinovskiy = resultSet.getInt("zhirinovskiy");
+            this.putin = resultSet.getInt("putin");
+            this.sobchak = resultSet.getInt("sobchak");
+            this.uraikin = resultSet.getInt("uraikin");
+            this.titov = resultSet.getInt("titov");
+            this.papers_in_boxes = resultSet.getInt("papers_in_boxes");
+            this.valid_papers = resultSet.getInt("valid_papers");
+            this.voters = resultSet.getInt("voters");
+            this.papers_portable = resultSet.getInt("papers_portable");
+            this.papers_inside = resultSet.getInt("papers_inside");
+            this.papers_outside = resultSet.getInt("papers_outside");
+            this.papers_advance = resultSet.getInt("papers_advance");
+            this.papers_excessive = resultSet.getInt("papers_excessive");
+
+            Integer totalVotes = baburin+grudinin+zhirinovskiy+putin+sobchak+uraikin+titov;
+            if (totalVotes>papers_in_boxes) {
+                log.info("Ошибка! Сумма голосов за кандидатов ({}) превышает общее число голосов ({}) ",totalVotes,papers_in_boxes);
+                //TODO return false;
+            }
+
+            if (papers_in_boxes>voters) {
+                log.info("Ошибка! Сумма голосов за кандидатов ({}) превышает число избирателей ({})", papers_in_boxes, voters);
+                return false;
+            }
+            return true;
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            System.exit(1);
+        }
+        return false;
+    }
+
+    public void showResult(ResultSet resultSet){
+        try {
+            resultSet.first();
+            Double voters_percent =  100.0*valid_papers/voters;
+            Integer totalVotes = baburin+grudinin+zhirinovskiy+putin+sobchak+uraikin+titov;
+
+            String text=String.format(
+                "---------------------------\n"+
+                "Бабурин:       %.2f %% \t(%10d)\n"+
+                "Грудинин:      %.2f %% \t(%10d)\n"+
+                "Жириновский:   %.2f %% \t(%10d)\n"+
+                "Путин:         %.2f %% \t(%10d)\n"+
+                "Собчак:        %.2f %% \t(%10d)\n"+
+                "Урайкин:       %.2f %% \t(%10d)\n"+
+                "Титов:         %.2f %% \t(%10d)\n"+
+                "\n"+
+                "Итого          %.2f %% \t(%10d)\n"+
+                "Явка,%%        %g"
+                ,100.0*baburin/valid_papers, baburin
+                ,100.0*grudinin/valid_papers, grudinin
+                ,100.0*zhirinovskiy/valid_papers, zhirinovskiy
+                ,100.0*putin/valid_papers, putin
+                ,100.0*sobchak/valid_papers, sobchak
+                ,100.0*uraikin/valid_papers, uraikin
+                ,100.0*titov/valid_papers, titov
+                ,100.0*totalVotes/valid_papers, totalVotes
+                ,voters_percent);
+            System.out.println(text);
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            System.exit(1);
+        }
     }
 }

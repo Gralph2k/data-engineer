@@ -12,5 +12,6 @@
         <module>producer</module>
         <module>consumer</module>
         <module>serializer</module>
+        <module>aggregator</module>
     </modules>
 </project>

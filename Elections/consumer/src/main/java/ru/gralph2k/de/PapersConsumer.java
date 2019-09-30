@@ -7,6 +7,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.gralph2k.de.paperTypes.PaperType;
 import ru.gralph2k.de.paperTypes.PaperType_Presidential2018;
 
 import java.sql.SQLException;
@@ -14,6 +15,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Properties;
 
+//TODO Закрыть соединение с базой при выходе из программы
 public class PapersConsumer {
     private static final Logger log = LoggerFactory.getLogger(PapersConsumer.class);
 
@@ -27,7 +29,7 @@ public class PapersConsumer {
         this.dbHelper = new DbHelper(user, password, connectionString);
     }
 
-    public void consume() throws SQLException {
+    public void consume()  {
         Class paperTypeClass = PaperTypeFactory.getClass(paperType);
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.1.5:9092");
@@ -40,7 +42,7 @@ public class PapersConsumer {
             paperTypeClass.getName());
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // TODO Выключить после отладки
 
-        PaperType_Presidential2018.prepare(dbHelper);
+        new PaperType_Presidential2018(dbHelper).prepare();
 
         KafkaConsumer<String, PaperType_Presidential2018> consumer =
             new KafkaConsumer(properties, new StringDeserializer(), new PaperDeserializer(paperTypeClass)); //TODO Вместо PaperType_Presidential2018 использловать paperTypeClass. Как?
@@ -49,7 +51,9 @@ public class PapersConsumer {
             ConsumerRecords<String, PaperType_Presidential2018> records = consumer.poll(Duration.ofMillis(400));
             for (ConsumerRecord<String, PaperType_Presidential2018> record : records) {
                 log.info("Received offset = " + record.offset() + ", key = " + record.key() + ", value = " + record.value());
-                ((PaperType_Presidential2018) record.value()).save(dbHelper);
+                PaperType paperType = ((PaperType_Presidential2018) record.value());
+                paperType.setDbHelper(dbHelper); //TODO Отвратительно. Разделить бланк и логику работы с базой!
+                paperType.save();
             }
         }
     }
