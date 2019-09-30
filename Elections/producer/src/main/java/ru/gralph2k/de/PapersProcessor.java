@@ -47,7 +47,7 @@ public class PapersProcessor {
                         } catch (Exception ex) {
                             errors++;
                             fileHelper.writeError(paper.getName(), line, ex.getStackTrace()[0]);
-                            log.error("Error while parse {} value {}\n{}", this.paperType.getClass(), line, ex.getStackTrace());
+                            log.error("Error while parse {} value {}\n{}", this.paperType.getClass(), line, ex.getMessage());
                         }
                     }
                     fileHelper.movePaperToProcessed(paper);

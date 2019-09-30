@@ -26,6 +26,34 @@ public class PaperType_Presidential2018 extends PaperType {
     private Integer papers_advance;
     private Integer papers_excessive;
 
+    private static final String FIELDS_TYPES =
+        "ID VARCHAR(500) NOT NULL," +
+        " ps_id INT NOT NULL, " +
+        " region_name VARCHAR(500) NOT NULL, " +
+        " subregion_name VARCHAR(500) NOT NULL, " +
+        " baburin INT, " +
+        " grudinin INT, " +
+        " zhirinovskiy INT, " +
+        " putin INT, " +
+        " sobchak INT, " +
+        " uraikin INT, " +
+        " titov INT, " +
+        " papers_in_boxes INT, " +
+        " valid_papers INT, " +
+        " voters INT, " +
+        " papers_portable INT, " +
+        " papers_inside INT, " +
+        " papers_outside INT, " +
+        " papers_advance INT, " +
+        " papers_excessive INT," +
+        " registered timestamp";
+
+    private static final String FIELDS = "ID,ps_id,region_name,subregion_name," +
+        "baburin,grudinin,zhirinovskiy,putin,sobchak,uraikin,titov," +
+        "papers_in_boxes,valid_papers,voters,papers_portable,papers_inside,papers_outside,papers_advance,papers_excessive,registered";
+
+    private static final String SOURCE_TABLE = "Presidential2018_Source";
+    private static final String CLEAN_TABLE = "Presidential2018_Clean";
 
     public PaperType_Presidential2018() {
     }
@@ -153,41 +181,18 @@ public class PaperType_Presidential2018 extends PaperType {
     }
 
     public static void prepare(DbHelper helper) throws SQLException {
-        //helper.execSql("DROP TABLE Presidential2018_Source");
-        String sql =
-            "CREATE TABLE IF NOT EXISTS Presidential2018_Source " +
-                "(ID VARCHAR(500) NOT NULL," +
-                " ps_id INT NOT NULL, " +
-                " region_name VARCHAR(500) NOT NULL, " +
-                " subregion_name VARCHAR(500) NOT NULL, " +
-                " baburin INT, " +
-                " grudinin INT, " +
-                " zhirinovskiy INT, " +
-                " putin INT, " +
-                " sobchak INT, " +
-                " uraikin INT, " +
-                " titov INT, " +
-                " papers_in_boxes INT, " +
-                " valid_papers INT, " +
-                " voters INT, " +
-                " papers_portable INT, " +
-                " papers_inside INT, " +
-                " papers_outside INT, " +
-                " papers_advance INT, " +
-                " papers_excessive INT," +
-                " registered timestamp" +
-                ") ";
-        helper.execSql(sql);
+        helper.execSql(String.format("CREATE TABLE IF NOT EXISTS %s (%s)",SOURCE_TABLE,FIELDS_TYPES));
+        helper.execSql(String.format("CREATE TABLE IF NOT EXISTS %s (%s)",CLEAN_TABLE,FIELDS_TYPES));
     }
 
     @Override
     public boolean save(DbHelper helper) throws SQLException {
 
         String sql = String.format(
-            "INSERT INTO Presidential2018_Source (ID,ps_id,region_name,subregion_name," +
-                "baburin,grudinin,zhirinovskiy,putin,sobchak,uraikin,titov," +
-                "papers_in_boxes,valid_papers,voters,papers_portable,papers_inside,papers_outside,papers_advance,papers_excessive,registered) "
+            "INSERT INTO %s (%s) "
                 + "VALUES ('%s', %d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, now() );"
+            ,SOURCE_TABLE
+            ,FIELDS
             ,key()
             ,ps_id
             ,region_name
@@ -210,5 +215,4 @@ public class PaperType_Presidential2018 extends PaperType {
         helper.execSql(sql);
         return true;
     }
-
 }

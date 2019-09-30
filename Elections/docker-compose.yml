@@ -29,7 +29,7 @@ services:
     - "9092"
     - "2181"
     environment:
-    - ADVERTISED_HOST=192.168.0.103
+    - ADVERTISED_HOST=192.168.1.5
     - ADVERTISED_PORT=9092
     - AUTO_CREATE_TOPICS=true
     networks:

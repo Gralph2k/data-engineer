@@ -18,7 +18,7 @@ public class PapersKafkaProducer extends PapersProducer {
 
     PapersKafkaProducer() {
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.0.103:9092"); //TODO  Вынести настройки из класса. Избавится от прописаного IP. Как?
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.1.5:9092"); //TODO  Вынести настройки из класса. Избавится от прописаного IP. Как?
         props.put(ProducerConfig.ACKS_CONFIG, "all");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, PaperSerializer.class);
