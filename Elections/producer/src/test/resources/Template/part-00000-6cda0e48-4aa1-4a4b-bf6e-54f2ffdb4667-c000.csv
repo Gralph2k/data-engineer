@@ -1,0 +1,4 @@
+ps_id,region_name,subregion_name,baburin,grudinin,zhirinovskiy,putin,sobchak,suraikin,titov,yavlinskiy,papers_in_boxes,valid_papers,voters,papers_portable,papers_inside,papers_outside,papers_advance,papers_excessive,papers_acquired,papers_invalid,papers_unused,papers_lost,key
+140,Respublika Saha,Vilujskaa,0,115,2,159,5,2,0,1,271,284,468,18,271,18,0,0,390,5,101,0,Respublika Saha
+141,Respublika Saha,Vilujskaa,1,208,6,362,8,1,3,3,565,592,944,33,565,33,0,0,815,6,217,0,Respublika Saha
+142,Respublika Saha,Vilujskaa,2,199,7,417,11,3,3,0,620,642,900,26,620,26,0,0,820,4,174,0,Respublika Saha

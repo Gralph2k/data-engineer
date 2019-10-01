@@ -1,23 +1,5 @@
 version: '3'
 services:
-  producer:
-    depends_on:
-      - kafka
-    build:
-      context: ./producer
-    networks:
-      - election-network
-    volumes:
-      - ./Data:/Data
-
-  consumer:
-    depends_on:
-      - kafka
-    build:
-      context: ./consumer
-    networks:
-      - election-network
-
   kafka:
     image: spotify/kafka
     ports:
@@ -29,9 +11,10 @@ services:
     - "9092"
     - "2181"
     environment:
-    - ADVERTISED_HOST=192.168.1.5
+    - ADVERTISED_HOST=100.100.21.232
     - ADVERTISED_PORT=9092
     - AUTO_CREATE_TOPICS=true
+    - DELETE_TOPIC_ENABLE=true
     networks:
       - election-network
 
@@ -49,16 +32,52 @@ services:
     volumes:
     - ./Postgres:/var/lib/postgresql/data
 
-  adminer:
-    image: adminer
-    restart: always
+  jupyter-local:
+    image: jupyter/all-spark-notebook
     ports:
-      - 8080:8080
+    - 8888:8888
+    - 4040:4040
+    - 4041:4041
+    volumes:
+    - ./notebooks:/home/jovyan/work
+
+  producer:
+    depends_on:
+    - kafka
+    build:
+      context: ./producer
+    networks:
+    - election-network
+    volumes:
+    - ./Data:/Data
+
+  consumer:
+    depends_on:
+    - kafka
+    - postgres
+    build:
+      context: ./consumer
+    networks:
+    - election-network
+
+  aggregator:
+    depends_on:
+    - postgres
+    build:
+      context: ./aggregator
+    networks:
+    - election-network
 
 networks:
   election-network:
     external:
       name: election-network
+
+
+
+
+
+
 
 
 

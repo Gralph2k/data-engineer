@@ -8,14 +8,12 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.gralph2k.de.paperTypes.PaperType;
-import ru.gralph2k.de.paperTypes.PaperType_Presidential2018;
+import ru.gralph2k.de.paperTypes.PaperType_Presidential_2018;
 
-import java.sql.SQLException;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Properties;
 
-//TODO Закрыть соединение с базой при выходе из программы
 public class PapersConsumer {
     private static final Logger log = LoggerFactory.getLogger(PapersConsumer.class);
 
@@ -24,6 +22,11 @@ public class PapersConsumer {
     DbHelper dbHelper;
 
     public PapersConsumer(String topic, String paperType, String user, String password, String connectionString) {
+        log.info(topic);
+        log.info(paperType);
+        log.info(user);
+        log.info(password);
+        log.info(connectionString);
         this.topic = topic;
         this.paperType = paperType;
         this.dbHelper = new DbHelper(user, password, connectionString);
@@ -32,7 +35,7 @@ public class PapersConsumer {
     public void consume()  {
         Class paperTypeClass = PaperTypeFactory.getClass(paperType);
         Properties properties = new Properties();
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.1.5:9092");
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "100.100.21.232:9092");
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, "group1");
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         properties.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "30000");
@@ -40,35 +43,37 @@ public class PapersConsumer {
             StringDeserializer.class.getName());
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
             paperTypeClass.getName());
-        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // TODO Выключить после отладки
+       // properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // Выключить после отладки
 
-        new PaperType_Presidential2018(dbHelper).prepare();
+        new PaperType_Presidential_2018(dbHelper).prepare();
 
-        KafkaConsumer<String, PaperType_Presidential2018> consumer =
-            new KafkaConsumer(properties, new StringDeserializer(), new PaperDeserializer(paperTypeClass)); //TODO Вместо PaperType_Presidential2018 использловать paperTypeClass. Как?
+        KafkaConsumer<String, PaperType_Presidential_2018> consumer =
+            new KafkaConsumer(properties, new StringDeserializer(), new PaperDeserializer(paperTypeClass)); //TODO Вместо PaperType_Presidential_2018 использловать paperTypeClass. Разобраться с генериками
         consumer.subscribe(Arrays.asList(topic));
         while (true) {
-            ConsumerRecords<String, PaperType_Presidential2018> records = consumer.poll(Duration.ofMillis(400));
-            for (ConsumerRecord<String, PaperType_Presidential2018> record : records) {
-                log.info("Received offset = " + record.offset() + ", key = " + record.key() + ", value = " + record.value());
-                PaperType paperType = ((PaperType_Presidential2018) record.value());
+            ConsumerRecords<String, PaperType_Presidential_2018> records = consumer.poll(Duration.ofMillis(400));
+            for (ConsumerRecord<String, PaperType_Presidential_2018> record : records) {
+                log.debug("Received offset = " + record.offset() + ", key = " + record.key() + ", value = " + record.value());
+                PaperType paperType = ((PaperType_Presidential_2018) record.value());
                 paperType.setDbHelper(dbHelper); //TODO Отвратительно. Разделить бланк и логику работы с базой!
                 paperType.save();
             }
         }
     }
 
-    public static void main(String[] args) throws SQLException {
-        log.info("started. \nArgs.count={}", args.length);
-        for (String arg : args) {
-            log.info(arg);
+    public static void main(String[] args) throws InterruptedException {
+        log.info("Started. \nArgs.count={}", args.length);
+        if (args.length>0) {
+            log.info("Initializing consumer, sleeping for 30 seconds to let Kafka startup");
+            Thread.sleep(30000);
+            log.info(args.toString());
         }
 
-        String topic = "Presidential2018";
-        String paperType = "PaperType_Presidential2018";
+        String topic = "Presidential_2018";
+        String paperType = "PaperType_Presidential_2018";
         String user = "consumer";
         String password = "goto@Postgres1";
-        String connectionString = "jdbc:postgresql://localhost:5432/Elections";
+        String connectionString = "jdbc:postgresql://100.100.21.232:5432/Elections";
 
         //TODO Заменить на cli
         if (args.length >= 1) {

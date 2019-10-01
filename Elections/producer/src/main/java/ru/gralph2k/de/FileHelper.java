@@ -82,9 +82,9 @@ public class FileHelper {
         }
     }
 
-    public void writeError(String fileName, String line, StackTraceElement stackTraceElement) throws IOException {
+    public void writeError(String fileName, String line, String errorMessage) throws IOException {
         Path errorFile = getErrorRowsDir().resolve(filePrefix + "_" + fileName);
-        FileUtils.writeStringToFile(errorFile.toFile(), line + System.lineSeparator()+"stackTraceElement"+System.lineSeparator(), "UTF-8", true);
+        FileUtils.writeStringToFile(errorFile.toFile(), line + System.lineSeparator()+errorMessage+System.lineSeparator(), "UTF-8", true);
     }
 
     public void writeSuccess(String fileName, String line) throws IOException {

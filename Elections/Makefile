@@ -6,7 +6,4 @@ run:
 	docker-compose up --build
 
 clean:
-	cp producer/src/test/resources/Template/* Data/Source
-	rm Data/ErrorRows/*
-	rm Data/Processed/*
-	rm Data/SuccessRows/*
+	./clean.sh

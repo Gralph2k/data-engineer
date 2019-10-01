@@ -9,8 +9,8 @@ import java.sql.SQLException;
 
 //Формат протокола на президентских выборах 2018
 //TODO Разделить логику парсера и работу с базой данных
-public class PaperType_Presidential2018 extends PaperType {
-    private static final Logger log = LoggerFactory.getLogger(PaperType_Presidential2018.class);
+public class PaperType_Presidential_2018 extends PaperType {
+    private static final Logger log = LoggerFactory.getLogger(PaperType_Presidential_2018.class);
 
     private Integer ps_id;
     private String region_name;
@@ -20,8 +20,9 @@ public class PaperType_Presidential2018 extends PaperType {
     private Integer zhirinovskiy;
     private Integer putin;
     private Integer sobchak;
-    private Integer uraikin;
+    private Integer suraikin;
     private Integer titov;
+    private Integer yavlinskiy;
     private Integer papers_in_boxes;
     private Integer valid_papers;
     private Integer voters;
@@ -34,6 +35,7 @@ public class PaperType_Presidential2018 extends PaperType {
     private Integer protocols;
     private Integer IKs;
     private Integer regions;
+    private Integer priorTotal=0;
 
     private static final String FIELDS_TYPES =
         "ID VARCHAR(500) NOT NULL," +
@@ -45,8 +47,9 @@ public class PaperType_Presidential2018 extends PaperType {
         " zhirinovskiy INT, " +
         " putin INT, " +
         " sobchak INT, " +
-        " uraikin INT, " +
+        " suraikin INT, " +
         " titov INT, " +
+        " yavlinskiy INT, " +
         " papers_in_boxes INT, " +
         " valid_papers INT, " +
         " voters INT, " +
@@ -58,14 +61,14 @@ public class PaperType_Presidential2018 extends PaperType {
         " registered timestamp";
 
     private static final String FIELDS = "ID,ps_id,region_name,subregion_name," +
-        "baburin,grudinin,zhirinovskiy,putin,sobchak,uraikin,titov," +
+        "baburin,grudinin,zhirinovskiy,putin,sobchak,suraikin,titov,yavlinskiy," +
         "papers_in_boxes,valid_papers,voters,papers_portable,papers_inside,papers_outside,papers_advance,papers_excessive,registered";
 
     private static final String SOURCE_TABLE = "Presidential2018_Source";
     private static final String CLEAN_TABLE = "Presidential2018_Clean";
 
-    public PaperType_Presidential2018() {}
-    public PaperType_Presidential2018(DbHelper dbHelper) {
+    public PaperType_Presidential_2018() {}
+    public PaperType_Presidential_2018(DbHelper dbHelper) {
         super(dbHelper);
     }
 
@@ -94,16 +97,17 @@ public class PaperType_Presidential2018 extends PaperType {
         zhirinovskiy = parseToInt(column[5]);
         putin = parseToInt(column[6]);
         sobchak = parseToInt(column[7]);
-        uraikin = parseToInt(column[8]);
-        titov = parseToInt(column[10]);
-        papers_in_boxes = parseToInt(column[10]);
-        valid_papers = parseToInt(column[11]);
-        voters = parseToInt(column[12]);
-        papers_portable = parseToInt(column[13]);
-        papers_inside = parseToInt(column[14]);
-        papers_outside = parseToInt(column[15]);
-        papers_advance = parseToInt(column[16]);
-        papers_excessive = parseToInt(column[17]);
+        suraikin = parseToInt(column[8]);
+        titov = parseToInt(column[9]);
+        yavlinskiy = parseToInt(column[10]);
+        papers_in_boxes = parseToInt(column[11]);
+        valid_papers = parseToInt(column[12]);
+        voters = parseToInt(column[13]);
+        papers_portable = parseToInt(column[14]);
+        papers_inside = parseToInt(column[15]);
+        papers_outside = parseToInt(column[16]);
+        papers_advance = parseToInt(column[17]);
+        papers_excessive = parseToInt(column[18]);
         return true;
     }
 
@@ -151,8 +155,12 @@ public class PaperType_Presidential2018 extends PaperType {
         return sobchak;
     }
 
-    public Integer getUraikin() {
-        return uraikin;
+    public Integer getSuraikin() {
+        return suraikin;
+    }
+
+    public Integer getYavlinskiy() {
+        return yavlinskiy;
     }
 
     public Integer getTitov() {
@@ -201,7 +209,7 @@ public class PaperType_Presidential2018 extends PaperType {
     public void save() {
         String sql = String.format(
             "INSERT INTO %s (%s) "
-                + "VALUES ('%s', %d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, now() );"
+                + "VALUES ('%s', %d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, now() );"
             ,SOURCE_TABLE
             ,FIELDS
             ,key()
@@ -213,8 +221,9 @@ public class PaperType_Presidential2018 extends PaperType {
             ,zhirinovskiy
             ,putin
             ,sobchak
-            ,uraikin
+            ,suraikin
             ,titov
+            ,yavlinskiy
             ,papers_in_boxes
             ,valid_papers
             ,voters
@@ -251,7 +260,8 @@ public class PaperType_Presidential2018 extends PaperType {
                 "      ,COALESCE(SUM(zhirinovskiy),0) zhirinovskiy\n" +
                 "      ,COALESCE(SUM(putin),0) putin\n" +
                 "      ,COALESCE(SUM(sobchak),0) sobchak\n" +
-                "      ,COALESCE(SUM(uraikin),0) uraikin\n" +
+                "      ,COALESCE(SUM(suraikin),0) suraikin\n" +
+                "      ,COALESCE(SUM(yavlinskiy),0) yavlinskiy\n" +
                 "      ,COALESCE(SUM(titov),0) titov\n" +
                 "      ,COALESCE(SUM(papers_in_boxes),0) papers_in_boxes\n" +
                 "      ,COALESCE(SUM(valid_papers),0) valid_papers\n" +
@@ -279,8 +289,9 @@ public class PaperType_Presidential2018 extends PaperType {
             this.zhirinovskiy = resultSet.getInt("zhirinovskiy");
             this.putin = resultSet.getInt("putin");
             this.sobchak = resultSet.getInt("sobchak");
-            this.uraikin = resultSet.getInt("uraikin");
+            this.suraikin = resultSet.getInt("suraikin");
             this.titov = resultSet.getInt("titov");
+            this.yavlinskiy = resultSet.getInt("yavlinskiy");
             this.papers_in_boxes = resultSet.getInt("papers_in_boxes");
             this.valid_papers = resultSet.getInt("valid_papers");
             this.voters = resultSet.getInt("voters");
@@ -290,14 +301,14 @@ public class PaperType_Presidential2018 extends PaperType {
             this.papers_advance = resultSet.getInt("papers_advance");
             this.papers_excessive = resultSet.getInt("papers_excessive");
 
-            Integer totalVotes = baburin+grudinin+zhirinovskiy+putin+sobchak+uraikin+titov;
-            if (totalVotes>papers_in_boxes) {
-                log.info("Ошибка! Сумма голосов за кандидатов ({}) превышает общее число голосов ({}) ",totalVotes,papers_in_boxes);
+            Integer totalVotes = baburin+grudinin+zhirinovskiy+putin+sobchak+suraikin+titov+yavlinskiy;
+            if (totalVotes>valid_papers) {
+                log.info("Ошибка! Сумма голосов за кандидатов ({}) превышает число бюллетеней ({}) ",totalVotes,valid_papers);
                 //TODO return false;
             }
 
             if (papers_in_boxes>voters) {
-                log.info("Ошибка! Сумма голосов за кандидатов ({}) превышает число избирателей ({})", papers_in_boxes, voters);
+                log.info("Ошибка! Число бюллетеней ({}) превышает число избирателей ({})", valid_papers, voters);
                 return false;
             }
             return true;
@@ -313,31 +324,34 @@ public class PaperType_Presidential2018 extends PaperType {
         try {
             resultSet.first();
             Double voters_percent =  100.0*valid_papers/voters;
-            Integer totalVotes = baburin+grudinin+zhirinovskiy+putin+sobchak+uraikin+titov;
-
-            String text=String.format(
-                "---------------------------\n"+
-                "Бабурин:       %.2f %% \t(%10d)\n"+
-                "Грудинин:      %.2f %% \t(%10d)\n"+
-                "Жириновский:   %.2f %% \t(%10d)\n"+
-                "Путин:         %.2f %% \t(%10d)\n"+
-                "Собчак:        %.2f %% \t(%10d)\n"+
-                "Урайкин:       %.2f %% \t(%10d)\n"+
-                "Титов:         %.2f %% \t(%10d)\n"+
-                "\n"+
-                "Итого          %.2f %% \t(%10d)\n"+
-                "Явка,%%        %g"
-                ,100.0*baburin/valid_papers, baburin
-                ,100.0*grudinin/valid_papers, grudinin
-                ,100.0*zhirinovskiy/valid_papers, zhirinovskiy
-                ,100.0*putin/valid_papers, putin
-                ,100.0*sobchak/valid_papers, sobchak
-                ,100.0*uraikin/valid_papers, uraikin
-                ,100.0*titov/valid_papers, titov
-                ,100.0*totalVotes/valid_papers, totalVotes
-                ,voters_percent);
-            System.out.println(text);
-
+            Integer totalVotes = baburin+grudinin+zhirinovskiy+putin+sobchak+suraikin+titov+yavlinskiy;
+            if (totalVotes!=priorTotal) {
+                String text = String.format(
+                    "\n---------Выборы президента РФ--------\n" +
+                        "Бабурин C.Н.       %02.2f %% \t(%8d)\n" +
+                        "Грудинин P.Н.      %02.2f %% \t(%8d)\n" +
+                        "Жириновский В.В.   %02.2f %% \t(%8d)\n" +
+                        "Путин В.В.         %02.2f %% \t(%8d)\n" +
+                        "Собчак К.А.        %02.2f %% \t(%8d)\n" +
+                        "Сурайкин М.А.      %02.2f %% \t(%8d)\n" +
+                        "Титов Б.Ю.         %02.2f %% \t(%8d)\n" +
+                        "Явлинский Г.А.     %02.2f %% \t(%8d)\n" +
+                        "\n" +
+                        "Итого              %.2f  %% (%8d)\n" +
+                        "Явка               %.2g %%\n"
+                    , 100.0 * baburin / valid_papers, baburin
+                    , 100.0 * grudinin / valid_papers, grudinin
+                    , 100.0 * zhirinovskiy / valid_papers, zhirinovskiy
+                    , 100.0 * putin / valid_papers, putin
+                    , 100.0 * sobchak / valid_papers, sobchak
+                    , 100.0 * suraikin / valid_papers, suraikin
+                    , 100.0 * titov / valid_papers, titov
+                    , 100.0 * yavlinskiy / valid_papers, yavlinskiy
+                    , 100.0 * totalVotes / valid_papers, totalVotes
+                    , voters_percent);
+                log.info(text);
+                priorTotal=totalVotes;
+            }
         } catch (SQLException ex) {
             ex.printStackTrace();
             System.exit(1);

@@ -1,0 +1,4 @@
+ps_id,region_name,subregion_name,baburin,grudinin,zhirinovskiy,putin,sobchak,suraikin,titov,yavlinskiy,papers_in_boxes,valid_papers,voters,papers_portable,papers_inside,papers_outside,papers_advance,papers_excessive,papers_acquired,papers_invalid,papers_unused,papers_lost,key
+1,Respublika Altaj,gorodskaa,8,353,72,848,13,8,4,10,1299,1316,2120,35,1299,35,0,0,2000,18,666,0,Respublika Altaj
+2,Respublika Altaj,gorodskaa,3,341,74,995,14,7,2,5,1421,1441,2181,33,1421,33,0,0,2000,13,546,0,Respublika Altaj
+3,Respublika Altaj,gorodskaa,4,257,69,733,14,3,11,11,1081,1102,1748,30,1081,30,0,0,1700,9,589,0,Respublika Altaj

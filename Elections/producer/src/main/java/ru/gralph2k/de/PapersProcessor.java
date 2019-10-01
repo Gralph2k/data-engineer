@@ -17,12 +17,14 @@ public class PapersProcessor {
     private PapersProducer papersProducer;
     private PaperType paperType;
     private String topic;
+    private Integer delay=0;
 
-    public PapersProcessor(String sourceDir, PapersProducer papersProducer, PaperType paperType, String topic) throws IOException {
+    public PapersProcessor(String sourceDir, PapersProducer papersProducer, PaperType paperType, String topic, Integer delay) throws IOException {
         this.papersProducer = papersProducer;
         this.fileHelper = FileHelper.getInstance(sourceDir, papersProducer);
         this.paperType = paperType; //TODO лучше передавать класс, а не объект. Разобраться как это делать
         this.topic = topic;
+        this.delay = delay;
     }
 
     public Integer processPapers() {
@@ -46,7 +48,7 @@ public class PapersProcessor {
                             }
                         } catch (Exception ex) {
                             errors++;
-                            fileHelper.writeError(paper.getName(), line, ex.getStackTrace()[0]);
+                            fileHelper.writeError(paper.getName(), line, ex.getMessage());
                             log.error("Error while parse {} value {}\n{}", this.paperType.getClass(), line, ex.getMessage());
                         }
                     }
@@ -54,6 +56,12 @@ public class PapersProcessor {
                     log.info("File {} read successfully. Parsed lines {}, errors {}", paper.toString(), success, errors);
                 } catch (IOException ex) {
                     log.error("Failed to read {} \n", paper.toString(), ex.getStackTrace());
+                }
+                //Sleep before processing next file to emulate real life
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException ex) {
+                    break;
                 }
             }
         }
@@ -63,15 +71,18 @@ public class PapersProcessor {
 
     public static void main(String[] args) throws InterruptedException {
         log.info("Started. \nArgs.count={}", args.length);
-        log.info("Initializing producer, sleeping for 30 seconds to let Kafka startup");
-        Thread.sleep(30000);
-        for (String arg : args) {
-            log.info(arg);
+        if (args.length>0) {
+            log.info("Initializing producer, sleeping for 30 seconds to let Kafka startup");
+            Thread.sleep(30000);
+            for (String arg : args) {
+                log.info(arg);
+            }
         }
         String sourceDir = "./Data/Source";
         String producerName = "PapersKafkaProducer";
-        String paperName = "PaperType_Presidential2018";
-        String topic = "Presidential2018";
+        String paperName = "PaperType_Presidential_2018";
+        String topic = "Presidential_2018";
+        Integer delay = 1000 * 10;
 
         if (args.length >= 1) {
             sourceDir = args[1];
@@ -89,10 +100,10 @@ public class PapersProcessor {
         try {
             PapersProducer papersProducer = ProducerFactory.getInstance(producerName);
             log.info("papersProducer: {}", papersProducer.getClass().getName());
-            PaperType paperType = PaperTypeFactory.getInstance(paperName);
+            PaperType paperType = PaperTypeFactory.getInstance(paperName, null);
             log.info("paperType: {}", paperType.getClass().getName());
 
-            new PapersProcessor(sourceDir, papersProducer, paperType, topic).processPapers();
+            new PapersProcessor(sourceDir, papersProducer, paperType, topic, delay).processPapers();
         } catch (Exception ex) {
             ex.printStackTrace();
         }

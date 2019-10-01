@@ -28,17 +28,16 @@ public class PapersProcessorTest {
         FileUtils.cleanDirectory(Paths.get("./src/test/resources/SuccessRows").toFile());
 
         FileUtils.copyDirectory(Paths.get("./src/test/resources/Template/").toFile(), Paths.get("./src/test/resources/Source/").toFile());
-
     }
 
     @Test
     public void testDummyProcessPapers() throws IOException {
         PapersProducer dummyProducer = ProducerFactory.getInstance("PapersDummyProducer");
-        PaperType paperType = PaperTypeFactory.getInstance("PaperType_Presidential2018");
+        PaperType paperType = PaperTypeFactory.getInstance("PaperType_Presidential_2018",null);
 
-        PapersProcessor papersProcessor = new PapersProcessor("./src/test/resources/Source", dummyProducer, paperType, "testTopic");
+        PapersProcessor papersProcessor = new PapersProcessor("./src/test/resources/Source", dummyProducer, paperType, "testTopic",0);
         int rows = papersProcessor.processPapers();
-        assertEquals(rows, 14);
+        assertEquals(rows, 13);
 
         assertTrue(FileUtils.listFiles(Paths.get("./src/test/resources/ErrorRows").toFile(), new String[]{"csv"}, false).size() == 2);
         assertTrue(FileUtils.listFiles(Paths.get("./src/test/resources/Processed").toFile(), new String[]{"csv"}, false).size() == 3);
@@ -48,13 +47,13 @@ public class PapersProcessorTest {
     @Test
     public void testKafkaProcessPapers() throws IOException {
         PapersProducer kafkaProducer = ProducerFactory.getInstance("PapersKafkaProducer");
-        PaperType paperType = PaperTypeFactory.getInstance("PaperType_Presidential2018");
+        PaperType paperType = PaperTypeFactory.getInstance("PaperType_Presidential_2018", null);
 
-        PapersProcessor papersProcessor = new PapersProcessor("./src/test/resources/Source", kafkaProducer, paperType, "Presidential2018");
+        PapersProcessor papersProcessor = new PapersProcessor("./src/test/resources/Source", kafkaProducer, paperType, "testTopic",0);
         int rows = papersProcessor.processPapers();
-        assertEquals(rows, 14);
+        assertEquals(rows, 13);
 
-        assertTrue(FileUtils.listFiles(Paths.get("./src/test/resources/ErrorRows").toFile(), new String[]{"csv"}, false).size() == 2);
+        assertTrue(FileUtils.listFiles(Paths.get("./src/test/resources/ErrorRows").toFile(), new String[]{"csv"}, false).size() == 1);
         assertTrue(FileUtils.listFiles(Paths.get("./src/test/resources/Processed").toFile(), new String[]{"csv"}, false).size() == 3);
         assertTrue(FileUtils.listFiles(Paths.get("./src/test/resources/Source").toFile(), new String[]{"csv"}, false).size() == 0);
     }
