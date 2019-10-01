@@ -337,7 +337,7 @@ public class PaperType_Presidential_2018 extends PaperType {
                         "Титов Б.Ю.         %02.2f %% \t(%8d)\n" +
                         "Явлинский Г.А.     %02.2f %% \t(%8d)\n" +
                         "\n" +
-                        "Итого              %.2f  %% (%8d)\n" +
+                        "Итого                   \t(%8d)\n" +
                         "Явка               %.2g %%\n"
                     , 100.0 * baburin / valid_papers, baburin
                     , 100.0 * grudinin / valid_papers, grudinin
@@ -347,7 +347,7 @@ public class PaperType_Presidential_2018 extends PaperType {
                     , 100.0 * suraikin / valid_papers, suraikin
                     , 100.0 * titov / valid_papers, titov
                     , 100.0 * yavlinskiy / valid_papers, yavlinskiy
-                    , 100.0 * totalVotes / valid_papers, totalVotes
+                    , totalVotes
                     , voters_percent);
                 log.info(text);
                 priorTotal=totalVotes;
