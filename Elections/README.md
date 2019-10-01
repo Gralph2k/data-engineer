@@ -1,10 +1,11 @@
 # Elections
 Имитация подсчета результатов голосования
  
-Запуск
-  make clean - сброс системы к начальному состоянию
-  make run - запуск системы
- 
+# Запуск
+make clean - сброс системы к начальному состоянию
+make run - запуск системы
+
+# Описание 
 В качестве образца данных использованы результаты президентских выборов РФ в 2018г: 
 https://github.com/Gralph2k/data-engineer/blob/master/Elections/notebooks/voting_data_eng.csv
 
