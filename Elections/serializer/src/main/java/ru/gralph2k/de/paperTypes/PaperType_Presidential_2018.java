@@ -323,7 +323,6 @@ public class PaperType_Presidential_2018 extends PaperType {
     public void showResult(ResultSet resultSet){
         try {
             resultSet.first();
-            Double voters_percent =  100.0*valid_papers/voters;
             Integer totalVotes = baburin+grudinin+zhirinovskiy+putin+sobchak+suraikin+titov+yavlinskiy;
             if (totalVotes!=priorTotal) {
                 String text = String.format(
@@ -338,7 +337,7 @@ public class PaperType_Presidential_2018 extends PaperType {
                         "Явлинский Г.А.     %02.2f %% \t(%8d)\n" +
                         "\n" +
                         "Итого                   \t(%8d)\n" +
-                        "Явка               %.2g %%\n"
+                        "Явка               %02.2f %%\n"
                     , 100.0 * baburin / valid_papers, baburin
                     , 100.0 * grudinin / valid_papers, grudinin
                     , 100.0 * zhirinovskiy / valid_papers, zhirinovskiy
@@ -348,7 +347,7 @@ public class PaperType_Presidential_2018 extends PaperType {
                     , 100.0 * titov / valid_papers, titov
                     , 100.0 * yavlinskiy / valid_papers, yavlinskiy
                     , totalVotes
-                    , voters_percent);
+                    , 100.0*valid_papers/voters);
                 log.info(text);
                 priorTotal=totalVotes;
             }
