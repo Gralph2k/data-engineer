@@ -1,0 +1,53 @@
+version: '3'
+services:
+  producer:
+    depends_on:
+      - kafka
+    build:
+      context: ./producer
+    networks:
+      - election-network
+    volumes:
+      - ./Data:/Data
+
+  consumer:
+    depends_on:
+      - kafka
+    build:
+      context: ./consumer
+    networks:
+      - election-network
+
+  kafka:
+    image: spotify/kafka
+    ports:
+      - "9092:9092"
+      - "2181:2181"
+    hostname: kafka
+    container_name: kafka
+    expose:
+      - "9092"
+      - "2181"
+    environment:
+      - ADVERTISED_HOST=192.168.0.103
+      - ADVERTISED_PORT=9092
+      - KAFKA_CREATE_TOPICS=Presidential2018:1:1
+    networks:
+      - election-network
+
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_USER=consumer
+      - POSTGRES_DB=consumer
+      - POSTGRES_PASSWORD=goto@Postgres1
+    ports:
+      - "5432:5432"
+    networks:
+      - election-network
+networks:
+  election-network:
+    external:
+      name: election-network
+
+
