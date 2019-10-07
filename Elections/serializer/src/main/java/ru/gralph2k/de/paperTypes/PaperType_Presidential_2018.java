@@ -35,7 +35,7 @@ public class PaperType_Presidential_2018 extends PaperType {
     private Integer protocols;
     private Integer IKs;
     private Integer regions;
-    private Integer priorTotal=0;
+    private Integer priorTotal = Integer.MIN_VALUE;
 
     private static final String FIELDS_TYPES =
         "ID VARCHAR(500) NOT NULL," +
@@ -236,6 +236,7 @@ public class PaperType_Presidential_2018 extends PaperType {
     }
 
     public void clean(){
+        prepare();
         dbHelper.executeUpdate(String.format("TRUNCATE TABLE %s",CLEAN_TABLE));
         String sql = String.format(
             "INSERT INTO %s\n" +
@@ -324,7 +325,7 @@ public class PaperType_Presidential_2018 extends PaperType {
         try {
             resultSet.first();
             Integer totalVotes = baburin+grudinin+zhirinovskiy+putin+sobchak+suraikin+titov+yavlinskiy;
-            if (totalVotes!=priorTotal) {
+            if (totalVotes.equals(this.priorTotal)) {
                 String text = String.format(
                     "\n---------Выборы президента РФ--------\n" +
                         "Бабурин C.Н.       %02.2f %% \t(%8d)\n" +
@@ -349,7 +350,7 @@ public class PaperType_Presidential_2018 extends PaperType {
                     , totalVotes
                     , 100.0*valid_papers/voters);
                 log.info(text);
-                priorTotal=totalVotes;
+                this.priorTotal = totalVotes;
             }
         } catch (SQLException ex) {
             ex.printStackTrace();

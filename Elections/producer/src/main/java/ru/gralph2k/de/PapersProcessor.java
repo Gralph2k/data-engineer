@@ -17,7 +17,7 @@ public class PapersProcessor {
     private PapersProducer papersProducer;
     private PaperType paperType;
     private String topic;
-    private Integer delay=0;
+    private Integer delay = 0;
 
     public PapersProcessor(String sourceDir, PapersProducer papersProducer, PaperType paperType, String topic, Integer delay) throws IOException {
         this.papersProducer = papersProducer;
@@ -25,6 +25,8 @@ public class PapersProcessor {
         this.paperType = paperType; //TODO лучше передавать класс, а не объект. Разобраться как это делать
         this.topic = topic;
         this.delay = delay;
+
+        log.info("PapersProcessor created {}\n{}\n{}\n{}", sourceDir, papersProducer.getClass().toString(), paperType.getClass().toString(), topic);
     }
 
     public Integer processPapers() {
@@ -59,7 +61,7 @@ public class PapersProcessor {
                 }
                 //Sleep before processing next file to emulate real life
                 try {
-                    Thread.sleep(delay);
+                    Thread.sleep(1000 * delay);
                 } catch (InterruptedException ex) {
                     break;
                 }
@@ -69,41 +71,25 @@ public class PapersProcessor {
         return lines;
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        log.info("Started. \nArgs.count={}", args.length);
-        if (args.length>0) {
-            log.info("Initializing producer, sleeping for 30 seconds to let Kafka startup");
-            Thread.sleep(30000);
-            for (String arg : args) {
-                log.info(arg);
-            }
-        }
-        String sourceDir = "./Data/Source";
-        String producerName = "PapersKafkaProducer";
-        String paperName = "PaperType_Presidential_2018";
-        String topic = "Presidential_2018";
-        Integer delay = 1000 * 10;
-
-        if (args.length >= 1) {
-            sourceDir = args[1];
-        }
-        if (args.length >= 2) {
-            producerName = args[2];
-        }
-        if (args.length >= 3) {
-            paperName = args[3];
-        }
-        if (args.length >= 4) {
-            topic = args[4];
-        }
-
+    public static void main(String[] args) {
         try {
-            PapersProducer papersProducer = ProducerFactory.getInstance(producerName);
-            log.info("papersProducer: {}", papersProducer.getClass().getName());
-            PaperType paperType = PaperTypeFactory.getInstance(paperName, null);
-            log.info("paperType: {}", paperType.getClass().getName());
+            log.info("Started. \nArgs.count={}", args.length);
+            String propertiesFileName = "election.properties";
+            if (args.length > 1) {
+                log.info("Initializing producer, sleeping for 30 seconds to let Kafka startup");
+                Thread.sleep(30000);
+                propertiesFileName = args[1];
+            }
 
-            new PapersProcessor(sourceDir, papersProducer, paperType, topic, delay).processPapers();
+            ElectionsProperties properties = ElectionsProperties.getInstance(propertiesFileName);
+
+            PapersProducer papersProducer = ProducerFactory.getInstance(properties.getProducerName(), properties);
+            PaperType paperType = PaperTypeFactory.getInstance(properties.getPaperTypeName(), null);
+
+            new PapersProcessor(properties.getSourceDir(), papersProducer, paperType, properties.getTopic(), properties.getProducerProduceDelaySeconds()).processPapers();
+
+
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }

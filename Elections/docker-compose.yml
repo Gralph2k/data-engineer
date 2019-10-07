@@ -33,6 +33,7 @@ services:
     - ./Postgres:/var/lib/postgresql/data
 
   jupyter-local:
+    container_name: "jupyter"
     image: jupyter/all-spark-notebook
     ports:
     - 8888:8888
@@ -42,6 +43,7 @@ services:
     - ./notebooks:/home/jovyan/work
 
   producer:
+    container_name: producer
     depends_on:
     - kafka
     build:
@@ -49,9 +51,10 @@ services:
     networks:
     - election-network
     volumes:
-    - ./Data:/Data
+    - ./Data:/usr/bin/app/Data
 
   consumer:
+    container_name: consumer
     depends_on:
     - kafka
     - postgres
@@ -61,6 +64,7 @@ services:
     - election-network
 
   aggregator:
+    container_name: aggregator
     depends_on:
     - postgres
     build:

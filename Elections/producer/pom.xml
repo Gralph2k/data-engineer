@@ -48,7 +48,13 @@
             <artifactId>serializer</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>ru.gralph2k.de</groupId>
+            <artifactId>common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
+
     <build>
         <defaultGoal>package</defaultGoal>
         <plugins>

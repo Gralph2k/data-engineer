@@ -1,6 +1,8 @@
 package ru.gralph2k.de.producers;
 
-abstract public class PapersProducer {
+import java.io.Closeable;
+
+abstract public class PapersProducer implements Closeable {
     abstract public void send(String topic, String key, Object value);
     abstract public void close();
 }

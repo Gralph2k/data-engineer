@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 public class PapersProcessorTest {
 
@@ -32,30 +31,30 @@ public class PapersProcessorTest {
 
     @Test
     public void testDummyProcessPapers() throws IOException {
-        PapersProducer dummyProducer = ProducerFactory.getInstance("PapersDummyProducer");
-        PaperType paperType = PaperTypeFactory.getInstance("PaperType_Presidential_2018",null);
+        PapersProducer dummyProducer = ProducerFactory.getInstance("PapersDummyProducer", ElectionsProperties.getInstance("../resources/election.properties"));
+        PaperType paperType = PaperTypeFactory.getInstance("PaperType_Presidential_2018", null);
 
-        PapersProcessor papersProcessor = new PapersProcessor("./src/test/resources/Source", dummyProducer, paperType, "testTopic",0);
+        PapersProcessor papersProcessor = new PapersProcessor("./src/test/resources/Source", dummyProducer, paperType, "testTopic", 0);
         int rows = papersProcessor.processPapers();
         assertEquals(rows, 13);
 
-        assertTrue(FileUtils.listFiles(Paths.get("./src/test/resources/ErrorRows").toFile(), new String[]{"csv"}, false).size() == 2);
-        assertTrue(FileUtils.listFiles(Paths.get("./src/test/resources/Processed").toFile(), new String[]{"csv"}, false).size() == 3);
-        assertTrue(FileUtils.listFiles(Paths.get("./src/test/resources/Source").toFile(), new String[]{"csv"}, false).size() == 0);
+        assertEquals(FileUtils.listFiles(Paths.get("./src/test/resources/ErrorRows").toFile(), new String[]{"csv"}, false).size(), 1);
+        assertEquals(FileUtils.listFiles(Paths.get("./src/test/resources/Processed").toFile(), new String[]{"csv"}, false).size(), 3);
+        assertEquals(FileUtils.listFiles(Paths.get("./src/test/resources/Source").toFile(), new String[]{"csv"}, false).size(), 0);
     }
 
     @Test
     public void testKafkaProcessPapers() throws IOException {
-        PapersProducer kafkaProducer = ProducerFactory.getInstance("PapersKafkaProducer");
+        PapersProducer kafkaProducer = ProducerFactory.getInstance("PapersKafkaProducer", ElectionsProperties.getInstance("../resources/election.properties"));
         PaperType paperType = PaperTypeFactory.getInstance("PaperType_Presidential_2018", null);
 
-        PapersProcessor papersProcessor = new PapersProcessor("./src/test/resources/Source", kafkaProducer, paperType, "testTopic",0);
+        PapersProcessor papersProcessor = new PapersProcessor("./src/test/resources/Source", kafkaProducer, paperType, "testTopic", 0);
         int rows = papersProcessor.processPapers();
         assertEquals(rows, 13);
 
-        assertTrue(FileUtils.listFiles(Paths.get("./src/test/resources/ErrorRows").toFile(), new String[]{"csv"}, false).size() == 1);
-        assertTrue(FileUtils.listFiles(Paths.get("./src/test/resources/Processed").toFile(), new String[]{"csv"}, false).size() == 3);
-        assertTrue(FileUtils.listFiles(Paths.get("./src/test/resources/Source").toFile(), new String[]{"csv"}, false).size() == 0);
+        assertEquals(FileUtils.listFiles(Paths.get("./src/test/resources/ErrorRows").toFile(), new String[]{"csv"}, false).size(), 1);
+        assertEquals(FileUtils.listFiles(Paths.get("./src/test/resources/Processed").toFile(), new String[]{"csv"}, false).size(), 3);
+        assertEquals(FileUtils.listFiles(Paths.get("./src/test/resources/Source").toFile(), new String[]{"csv"}, false).size(), 0);
     }
 
 

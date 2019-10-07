@@ -22,20 +22,16 @@ public class PapersConsumer {
     DbHelper dbHelper;
 
     public PapersConsumer(String topic, String paperType, String user, String password, String connectionString) {
-        log.info(topic);
-        log.info(paperType);
-        log.info(user);
-        log.info(password);
-        log.info(connectionString);
+        log.info("PapersConsumer created {}\n{}\n{}\n{}", topic, paperType, user, connectionString);
         this.topic = topic;
         this.paperType = paperType;
         this.dbHelper = new DbHelper(user, password, connectionString);
     }
 
-    public void consume()  {
+    public void consume(ElectionsProperties electionsProperties) {
         Class paperTypeClass = PaperTypeFactory.getClass(paperType);
         Properties properties = new Properties();
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "100.100.21.232:9092");
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, electionsProperties.getKafka_BOOTSTRAP_SERVERS_CONFIG());
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, "group1");
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         properties.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "30000");
@@ -43,7 +39,7 @@ public class PapersConsumer {
             StringDeserializer.class.getName());
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
             paperTypeClass.getName());
-       // properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // Выключить после отладки
+        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // Выключить после отладки
 
         new PaperType_Presidential_2018(dbHelper).prepare();
 
@@ -62,40 +58,28 @@ public class PapersConsumer {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        log.info("Started. \nArgs.count={}", args.length);
-        if (args.length>0) {
-            log.info("Initializing consumer, sleeping for 30 seconds to let Kafka startup");
-            Thread.sleep(30000);
-            log.info(args.toString());
-        }
+        try {
+            log.info("Started. \nArgs.count={}", args.length);
+            String propertiesFileName = "election.properties";
+            if (args.length > 1) {
+                log.info("Initializing consumer, sleeping for 30 seconds to let Kafka startup");
+                Thread.sleep(30000);
+                propertiesFileName = args[1];
+            }
 
-        String topic = "Presidential_2018";
-        String paperType = "PaperType_Presidential_2018";
-        String user = "consumer";
-        String password = "goto@Postgres1";
-        String connectionString = "jdbc:postgresql://100.100.21.232:5432/Elections";
+            ElectionsProperties properties = ElectionsProperties.getInstance(propertiesFileName);
 
-        //TODO Заменить на cli
-        if (args.length >= 1) {
-            topic = args[1];
+            PapersConsumer papersConsumer = new PapersConsumer(
+                properties.getTopic()
+                , properties.getPaperTypeName()
+                , properties.getConsumerPGUser()
+                , properties.getConsumerPGPassword()
+                , properties.getConsumerPGconnectionString());
+            papersConsumer.consume(properties);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-        if (args.length >= 2) {
-            paperType = args[2];
-        }
-        if (args.length >= 3) {
-            user = args[3];
-        }
-        if (args.length >= 4) {
-            password = args[4];
-        }
-        if (args.length >= 5) {
-            connectionString = args[5];
-        }
-        PapersConsumer papersConsumer = new PapersConsumer(topic, paperType, user, password, connectionString);
-
-        papersConsumer.consume();
         log.info("Finished");
     }
-
 
 }
