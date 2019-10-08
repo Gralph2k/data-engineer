@@ -11,7 +11,7 @@ services:
     - "9092"
     - "2181"
     environment:
-    - ADVERTISED_HOST=100.100.21.232
+    - ADVERTISED_HOST=$LOCAL_IP
     - ADVERTISED_PORT=9092
     - AUTO_CREATE_TOPICS=true
     - DELETE_TOPIC_ENABLE=true
@@ -52,6 +52,7 @@ services:
     - election-network
     volumes:
     - ./Data:/usr/bin/app/Data
+    - ./config:/usr/bin/app/config
 
   consumer:
     container_name: consumer
@@ -62,6 +63,8 @@ services:
       context: ./consumer
     networks:
     - election-network
+    volumes:
+    - ./config:/usr/bin/app/config
 
   aggregator:
     container_name: aggregator
@@ -71,6 +74,8 @@ services:
       context: ./aggregator
     networks:
     - election-network
+    volumes:
+    - ./config:/usr/bin/app/config
 
 networks:
   election-network:

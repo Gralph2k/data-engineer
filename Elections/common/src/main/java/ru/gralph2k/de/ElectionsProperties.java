@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.Properties;
 
 
@@ -29,6 +28,7 @@ public class ElectionsProperties {
     private String consumerPGUser;
     private String consumerPGPassword;
     private String consumerPGconnectionString;
+    private Integer consumerPollDelayMs; //Задержка между полученим данных из кафки
 
     //Aggregator
     private String aggregatorPGUser;
@@ -66,6 +66,7 @@ public class ElectionsProperties {
         consumerPGUser = properties.getProperty("consumerPGUser", "consumer");
         consumerPGPassword = properties.getProperty("consumerPGPassword");
         consumerPGconnectionString = properties.getProperty("consumerPGconnectionString", "jdbc:postgresql://$LOCAL_IP:5432/Elections");
+        consumerPollDelayMs = Integer.parseInt(properties.getProperty("consumerPollDelayMs", "1000"));
 
         aggregatorPGUser = properties.getProperty("consumerPGUser", "consumer");
         aggregatorPGPassword = properties.getProperty("consumerPGPassword");
@@ -150,5 +151,9 @@ public class ElectionsProperties {
 
     public Integer getAggregatorDelaySeconds() {
         return aggregatorDelaySeconds;
+    }
+
+    public Integer getConsumerPollDelayMs() {
+        return consumerPollDelayMs;
     }
 }

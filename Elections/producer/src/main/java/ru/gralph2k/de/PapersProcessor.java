@@ -26,7 +26,7 @@ public class PapersProcessor {
         this.topic = topic;
         this.delay = delay;
 
-        log.info("PapersProcessor created {}\n{}\n{}\n{}", sourceDir, papersProducer.getClass().toString(), paperType.getClass().toString(), topic);
+        log.info("PapersProcessor created\nsourceDir:{}\npapersProducer:{}\npaperType:{}\ntopic:{}", sourceDir, papersProducer.getClass().toString(), paperType.getClass().toString(), topic);
     }
 
     public Integer processPapers() {
@@ -74,7 +74,7 @@ public class PapersProcessor {
     public static void main(String[] args) {
         try {
             log.info("Started. \nArgs.count={}", args.length);
-            String propertiesFileName = "election.properties";
+            String propertiesFileName = "config/election.properties";
             if (args.length > 1) {
                 log.info("Initializing producer, sleeping for 30 seconds to let Kafka startup");
                 Thread.sleep(30000);
@@ -82,13 +82,9 @@ public class PapersProcessor {
             }
 
             ElectionsProperties properties = ElectionsProperties.getInstance(propertiesFileName);
-
             PapersProducer papersProducer = ProducerFactory.getInstance(properties.getProducerName(), properties);
             PaperType paperType = PaperTypeFactory.getInstance(properties.getPaperTypeName(), null);
-
             new PapersProcessor(properties.getSourceDir(), papersProducer, paperType, properties.getTopic(), properties.getProducerProduceDelaySeconds()).processPapers();
-
-
 
         } catch (Exception ex) {
             ex.printStackTrace();

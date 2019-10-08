@@ -66,7 +66,7 @@ public class FileHelper {
     }
 
     public File[] papersList() {
-        log.debug("Scan {} ",sourceDir.toString());
+        log.info("Scan {} ", sourceDir.toString());
         return new File(sourceDir.toUri()).listFiles((d, name) -> name.endsWith(".csv"));
     }
 
