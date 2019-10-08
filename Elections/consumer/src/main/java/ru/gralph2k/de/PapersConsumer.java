@@ -22,7 +22,7 @@ public class PapersConsumer {
     DbHelper dbHelper;
 
     public PapersConsumer(String topic, String paperType, String user, String password, String connectionString) {
-        log.info("PapersConsumer created {}\n{}\n{}\n{}", topic, paperType, user, connectionString);
+        log.info("PapersConsumer created \ntopic:{}\npaperType:{}\nuser:{}\nconnectionString:{}", topic, paperType, user, connectionString);
         this.topic = topic;
         this.paperType = paperType;
         this.dbHelper = new DbHelper(user, password, connectionString);
@@ -39,7 +39,7 @@ public class PapersConsumer {
             StringDeserializer.class.getName());
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
             paperTypeClass.getName());
-        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // Выключить после отладки
+        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // Выключить после отладки?
 
         new PaperType_Presidential_2018(dbHelper).prepare();
 
@@ -47,20 +47,23 @@ public class PapersConsumer {
             new KafkaConsumer(properties, new StringDeserializer(), new PaperDeserializer(paperTypeClass)); //TODO Вместо PaperType_Presidential_2018 использловать paperTypeClass. Разобраться с генериками
         consumer.subscribe(Arrays.asList(topic));
         while (true) {
-            ConsumerRecords<String, PaperType_Presidential_2018> records = consumer.poll(Duration.ofMillis(400));
+            ConsumerRecords<String, PaperType_Presidential_2018> records = consumer.poll(Duration.ofMillis(electionsProperties.getConsumerPollDelayMs()));
+            int recordCnt = 0;
             for (ConsumerRecord<String, PaperType_Presidential_2018> record : records) {
                 log.debug("Received offset = " + record.offset() + ", key = " + record.key() + ", value = " + record.value());
                 PaperType paperType = ((PaperType_Presidential_2018) record.value());
                 paperType.setDbHelper(dbHelper); //TODO Отвратительно. Разделить бланк и логику работы с базой!
                 paperType.save();
+                recordCnt++;
             }
+            log.info("Received {} records", recordCnt);
         }
     }
 
     public static void main(String[] args) throws InterruptedException {
         try {
             log.info("Started. \nArgs.count={}", args.length);
-            String propertiesFileName = "election.properties";
+            String propertiesFileName = "config/election.properties";
             if (args.length > 1) {
                 log.info("Initializing consumer, sleeping for 30 seconds to let Kafka startup");
                 Thread.sleep(30000);

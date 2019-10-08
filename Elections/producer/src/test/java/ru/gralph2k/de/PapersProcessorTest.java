@@ -31,7 +31,10 @@ public class PapersProcessorTest {
 
     @Test
     public void testDummyProcessPapers() throws IOException {
-        PapersProducer dummyProducer = ProducerFactory.getInstance("PapersDummyProducer", ElectionsProperties.getInstance("../resources/election.properties"));
+        String current = new java.io.File(".").getCanonicalPath();
+        System.out.println("Current dir:" + current);
+
+        PapersProducer dummyProducer = ProducerFactory.getInstance("PapersDummyProducer", ElectionsProperties.getInstance("../config/election.properties"));
         PaperType paperType = PaperTypeFactory.getInstance("PaperType_Presidential_2018", null);
 
         PapersProcessor papersProcessor = new PapersProcessor("./src/test/resources/Source", dummyProducer, paperType, "testTopic", 0);
@@ -45,7 +48,7 @@ public class PapersProcessorTest {
 
     @Test
     public void testKafkaProcessPapers() throws IOException {
-        PapersProducer kafkaProducer = ProducerFactory.getInstance("PapersKafkaProducer", ElectionsProperties.getInstance("../resources/election.properties"));
+        PapersProducer kafkaProducer = ProducerFactory.getInstance("PapersKafkaProducer", ElectionsProperties.getInstance("../config/election.properties"));
         PaperType paperType = PaperTypeFactory.getInstance("PaperType_Presidential_2018", null);
 
         PapersProcessor papersProcessor = new PapersProcessor("./src/test/resources/Source", kafkaProducer, paperType, "testTopic", 0);

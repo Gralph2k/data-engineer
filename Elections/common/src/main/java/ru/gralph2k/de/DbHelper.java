@@ -19,13 +19,13 @@ public class DbHelper implements Closeable {
                     user, password);
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println(e.getClass().getName()+": "+e.getMessage());
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
         log.info("Opened database successfully");
     }
 
-    public void executeUpdate(String sql)  {
+    public void executeUpdate(String sql) {
         try {
             log.debug("execute {}", sql);
             Statement stmt = c.createStatement();
@@ -37,7 +37,7 @@ public class DbHelper implements Closeable {
         }
     }
 
-    public ResultSet executeQuery(String sql)  {
+    public ResultSet executeQuery(String sql) {
         try {
             log.debug("query {}", sql);
             Statement stmt = c.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);

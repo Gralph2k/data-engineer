@@ -2,8 +2,7 @@ create-network:
 	docker network create election-network
 
 run:
-	mvn clean package -DskipTests
-	docker-compose up --build
+	./run.sh
 
 clean:
 	./clean.sh

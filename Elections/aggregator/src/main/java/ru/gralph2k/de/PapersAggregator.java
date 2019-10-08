@@ -14,7 +14,7 @@ public class PapersAggregator {
     Integer delayMs;
 
     public PapersAggregator(String paperTypeClass, String user, String password, String connectionString, Integer delayMs) {
-        log.info("PapersAggregator created {}\n{}\n{}", paperTypeClass, user, connectionString);
+        log.info("PapersAggregator created\npaperType:{}\nuser:{}\nconnectionString:{}", paperTypeClass, user, connectionString);
         this.paperTypeClass = paperTypeClass;
         this.dbHelper = new DbHelper(user, password, connectionString);
         this.delayMs = delayMs;
@@ -22,6 +22,7 @@ public class PapersAggregator {
 
     public void process() {
         PaperType paperType = PaperTypeFactory.getInstance(paperTypeClass, dbHelper);
+        paperType.prepare();
         paperType.clean();
         ResultSet resultSet = paperType.aggregate();
         if (paperType.check(resultSet)) {
@@ -37,7 +38,7 @@ public class PapersAggregator {
     public static void main(String[] args) {
         try {
             log.info("Started. \nArgs.count={}", args.length);
-            String propertiesFileName = "election.properties";
+            String propertiesFileName = "config/election.properties";
             if (args.length > 1) {
                 log.info("Initializing aggregator, sleeping for 30 seconds to let postgres startup");
                 Thread.sleep(40000);
@@ -51,7 +52,7 @@ public class PapersAggregator {
                 properties.getAggregatorPGUser(),
                 properties.getAggregatorPGPassword(),
                 properties.getAggregatorPGconnectionString(),
-                properties.getProducerProduceDelaySeconds());
+                properties.getAggregatorDelaySeconds());
 
             while (true) {
                 papersAggregator.process();
