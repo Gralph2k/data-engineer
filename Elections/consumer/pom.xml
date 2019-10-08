@@ -24,7 +24,7 @@
         </dependency>
         <dependency>
             <groupId>ru.gralph2k.de</groupId>
-            <artifactId>serializer</artifactId>
+            <artifactId>paper</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>

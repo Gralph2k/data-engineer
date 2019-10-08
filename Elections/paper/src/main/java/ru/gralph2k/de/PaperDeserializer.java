@@ -1,4 +1,5 @@
 package ru.gralph2k.de;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.slf4j.Logger;

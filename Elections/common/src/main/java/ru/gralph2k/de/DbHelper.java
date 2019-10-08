@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.sql.*;
+import java.util.List;
 
 public class DbHelper implements Closeable {
     private static final Logger log = LoggerFactory.getLogger(DbHelper.class);
@@ -37,12 +38,17 @@ public class DbHelper implements Closeable {
         }
     }
 
+    public void executeUpdate(List<String> commands) {
+        for (String sql : commands) {
+            executeUpdate(sql);
+        }
+    }
+
     public ResultSet executeQuery(String sql) {
         try {
             log.debug("query {}", sql);
             Statement stmt = c.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ResultSet resultSet = ((PreparedStatement) stmt).executeQuery();
-            return resultSet;
+            return ((PreparedStatement) stmt).executeQuery();
         } catch (SQLException ex) {
             ex.printStackTrace();
             System.exit(1);

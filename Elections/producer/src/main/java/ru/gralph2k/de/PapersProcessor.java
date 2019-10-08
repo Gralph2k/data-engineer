@@ -83,7 +83,7 @@ public class PapersProcessor {
 
             ElectionsProperties properties = ElectionsProperties.getInstance(propertiesFileName);
             PapersProducer papersProducer = ProducerFactory.getInstance(properties.getProducerName(), properties);
-            PaperType paperType = PaperTypeFactory.getInstance(properties.getPaperTypeName(), null);
+            PaperType paperType = PaperTypeFactory.getInstance(properties.getPaperTypeName());
             new PapersProcessor(properties.getSourceDir(), papersProducer, paperType, properties.getTopic(), properties.getProducerProduceDelaySeconds()).processPapers();
 
         } catch (Exception ex) {

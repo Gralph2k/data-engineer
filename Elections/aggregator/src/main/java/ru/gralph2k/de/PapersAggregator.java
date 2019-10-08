@@ -9,9 +9,9 @@ import java.sql.ResultSet;
 public class PapersAggregator {
     private static final Logger log = LoggerFactory.getLogger(PapersAggregator.class);
 
-    DbHelper dbHelper;
-    String paperTypeClass;
-    Integer delayMs;
+    private DbHelper dbHelper;
+    private String paperTypeClass;
+    private Integer delayMs;
 
     public PapersAggregator(String paperTypeClass, String user, String password, String connectionString, Integer delayMs) {
         log.info("PapersAggregator created\npaperType:{}\nuser:{}\nconnectionString:{}", paperTypeClass, user, connectionString);
@@ -20,11 +20,12 @@ public class PapersAggregator {
         this.delayMs = delayMs;
     }
 
-    public void process() {
-        PaperType paperType = PaperTypeFactory.getInstance(paperTypeClass, dbHelper);
-        paperType.prepare();
-        paperType.clean();
-        ResultSet resultSet = paperType.aggregate();
+    private void process() {
+        PaperType paperType = PaperTypeFactory.getInstance(paperTypeClass);
+        dbHelper.executeUpdate(paperType.prepareCommand());
+        dbHelper.executeUpdate(paperType.cleanCommand());
+
+        ResultSet resultSet = dbHelper.executeQuery(paperType.aggregateCommand());
         if (paperType.check(resultSet)) {
             paperType.showResult(resultSet);
         }

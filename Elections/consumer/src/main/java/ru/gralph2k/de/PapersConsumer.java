@@ -17,19 +17,21 @@ import java.util.Properties;
 public class PapersConsumer {
     private static final Logger log = LoggerFactory.getLogger(PapersConsumer.class);
 
-    String paperType;
+    String paperTypeClass;
     String topic;
     DbHelper dbHelper;
 
-    public PapersConsumer(String topic, String paperType, String user, String password, String connectionString) {
-        log.info("PapersConsumer created \ntopic:{}\npaperType:{}\nuser:{}\nconnectionString:{}", topic, paperType, user, connectionString);
+    public PapersConsumer(String topic, String paperTypeClass, String user, String password, String connectionString) {
+        log.info("PapersConsumer created \ntopic:{}\npaperTypeClass:{}\nuser:{}\nconnectionString:{}", topic, paperTypeClass, user, connectionString);
         this.topic = topic;
-        this.paperType = paperType;
+        this.paperTypeClass = paperTypeClass;
         this.dbHelper = new DbHelper(user, password, connectionString);
     }
 
     public void consume(ElectionsProperties electionsProperties) {
-        Class paperTypeClass = PaperTypeFactory.getClass(paperType);
+        String paperTypeClassName = PaperTypeFactory.getClass(paperTypeClass).getName();
+        PaperType paperType = PaperTypeFactory.getInstance(this.paperTypeClass);
+
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, electionsProperties.getKafka_BOOTSTRAP_SERVERS_CONFIG());
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, "group1");
@@ -38,22 +40,20 @@ public class PapersConsumer {
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
             StringDeserializer.class.getName());
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-            paperTypeClass.getName());
+            paperTypeClassName);
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // Выключить после отладки?
 
-        new PaperType_Presidential_2018(dbHelper).prepare();
+        dbHelper.executeUpdate(paperType.prepareCommand());
 
-        KafkaConsumer<String, PaperType_Presidential_2018> consumer =
-            new KafkaConsumer(properties, new StringDeserializer(), new PaperDeserializer(paperTypeClass)); //TODO Вместо PaperType_Presidential_2018 использловать paperTypeClass. Разобраться с генериками
+        KafkaConsumer<String, PaperType> consumer = new KafkaConsumer(properties, new StringDeserializer(), new PaperDeserializer(PaperTypeFactory.getClass(paperTypeClass)));
         consumer.subscribe(Arrays.asList(topic));
         while (true) {
-            ConsumerRecords<String, PaperType_Presidential_2018> records = consumer.poll(Duration.ofMillis(electionsProperties.getConsumerPollDelayMs()));
+            ConsumerRecords<String, PaperType> records = consumer.poll(Duration.ofMillis(electionsProperties.getConsumerPollDelayMs()));
             int recordCnt = 0;
-            for (ConsumerRecord<String, PaperType_Presidential_2018> record : records) {
+            for (ConsumerRecord<String, PaperType> record : records) {
                 log.debug("Received offset = " + record.offset() + ", key = " + record.key() + ", value = " + record.value());
-                PaperType paperType = ((PaperType_Presidential_2018) record.value());
-                paperType.setDbHelper(dbHelper); //TODO Отвратительно. Разделить бланк и логику работы с базой!
-                paperType.save();
+                PaperType paperTypeRecord = record.value();
+                dbHelper.executeUpdate(paperTypeRecord.saveCommand());
                 recordCnt++;
             }
             log.info("Received {} records", recordCnt);
